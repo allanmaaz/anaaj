@@ -1,9 +1,5 @@
 # 🌾 Anaaj — The Ecommerce
 
-> **College Project · B.Tech · 2025**  
-> Full-stack e-commerce web application for grain-based food products — Rice, Dals, Millets, Organic Staples.
-
----
 
 ## 🏗️ Tech Stack
 

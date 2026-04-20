@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Checkout — Anaaj</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand"><div class="logo-icon">🌾</div>Anaaj</a>
+  <div class="navbar-actions">
+    <a href="cart.html" class="cart-btn"><span>🛒</span> Cart<span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+  </div>
+</nav>
+
+<div style="max-width:700px;margin:2rem auto;padding:0 1rem;position:relative;z-index:1">
+  <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">🚚 Checkout</h1>
+
+  <!-- Steps indicator -->
+  <div style="display:flex;gap:0.5rem;margin-bottom:2rem;font-size:0.8rem">
+    <span style="color:var(--blue);font-weight:600">1. Delivery Details</span>
+    <span style="color:var(--text-muted)">→</span>
+    <span style="color:var(--text-muted)">2. Confirm Order</span>
+  </div>
+
+  <div id="checkout-loading" class="spinner"></div>
+  <div id="checkout-content" style="display:none">
+    <!-- Cart Summary -->
+    <div class="glass" style="padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.75rem;color:var(--text-secondary)">ORDER SUMMARY</div>
+      <div id="checkout-items"></div>
+      <div class="summary-row summary-total" style="margin-top:0.5rem">
+        <span>Total</span>
+        <span id="checkout-total" style="color:var(--blue);font-weight:700"></span>
+      </div>
+    </div>
+
+    <!-- Delivery form -->
+    <div class="glass" style="padding:1.5rem;margin-bottom:1.5rem">
+      <div style="font-weight:600;margin-bottom:1rem">Delivery Address</div>
+      <textarea class="form-input" id="delivery-address" rows="3"
+        placeholder="Enter your full delivery address&#10;Door no., Street, City, State — PIN"></textarea>
+    </div>
+
+    <!-- Simulated payment notice -->
+    <div style="padding:1rem;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius-sm);margin-bottom:1.5rem;font-size:0.8rem;color:var(--amber)">
+      ⚠️ Payment is simulated for this demo. No real money will be charged.
+    </div>
+
+    <div id="order-error" class="error-msg"></div>
+    <button class="btn btn-primary btn-block btn-lg" id="place-order-btn" onclick="placeOrder()">
+      ✅ Place Order
+    </button>
+    <a href="cart.html" class="btn btn-glass btn-block mt-1">← Back to Cart</a>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+async function loadCheckout() {
+  try {
+    const [authRes, cartRes] = await Promise.all([fetch(API.profile), fetch(API.cart)]);
+    document.getElementById('checkout-loading').style.display = 'none';
+
+    if (!authRes.ok) { window.location.href = 'login.html?return=/pages/checkout.html'; return; }
+
+    const cartData = await cartRes.json();
+    if (!cartData.items || !cartData.items.length) { window.location.href = 'cart.html'; return; }
+
+    const user = await authRes.json();
+
+    // Pre-fill address
+    if (user.address) {
+      document.getElementById('delivery-address').value = user.address;
+    }
+
+    // Summary
+    document.getElementById('checkout-items').innerHTML = cartData.items.map(item => `
+      <div class="summary-row" style="font-size:0.85rem">
+        <span style="color:var(--text-secondary)">${item.productName} × ${item.quantity}</span>
+        <span>₹${Number(item.unitPrice * item.quantity).toFixed(2)}</span>
+      </div>`).join('');
+    document.getElementById('checkout-total').textContent = `₹${Number(cartData.total).toFixed(2)}`;
+
+    document.getElementById('checkout-content').style.display = 'block';
+  } catch (e) {
+    document.getElementById('checkout-loading').style.display = 'none';
+    showToast('Failed to load checkout', 'error');
+  }
+}
+
+async function placeOrder() {
+  const address = document.getElementById('delivery-address').value.trim();
+  const errEl   = document.getElementById('order-error');
+  errEl.classList.remove('show');
+
+  if (!address) {
+    errEl.textContent = 'Please enter a delivery address.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('place-order-btn');
+  btn.textContent = 'Placing order…'; btn.disabled = true;
+
+  try {
+    const fd = new FormData();
+    fd.append('address', address);
+    fd.append('action', 'place');
+
+    const res  = await fetch(API.orders, { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.href = `order-success.html?orderId=${data.orderId}`;
+    } else {
+      errEl.textContent = data.error || 'Failed to place order.';
+      errEl.classList.add('show');
+      btn.textContent = '✅ Place Order'; btn.disabled = false;
+    }
+  } catch (e) {
+    errEl.textContent = 'Network error. Please try again.';
+    errEl.classList.add('show');
+    btn.textContent = '✅ Place Order'; btn.disabled = false;
+  }
+}
+
+loadCheckout();
+</script>
+</body>
+</html>

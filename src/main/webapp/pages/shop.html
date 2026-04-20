@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Shop — Anaaj</title>
+  <meta name="description" content="Browse our full collection of rice, dals, millets, and organic staples. Filter by category, state, and price."/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand"><div class="logo-icon">🌾</div>Anaaj</a>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="shop.html" class="active">Shop</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="profile.html">My Orders</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="cart.html" class="cart-btn"><span>🛒</span> Cart<span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+    <a href="login.html" class="btn btn-glass btn-sm" id="auth-btn">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="section" style="padding-top:2rem">
+  <!-- Search -->
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem">
+    <div class="search-wrap" style="flex:1;min-width:200px">
+      <span class="search-icon">🔍</span>
+      <input class="search-bar" type="text" id="main-search" placeholder="Search rice, dal, millet…" autocomplete="off"/>
+      <span class="search-shortcut">⌘K</span>
+    </div>
+    <select id="sort-select" class="status-select" style="padding:0.65rem 1rem">
+      <option value="default">Sort: Default</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="freshness">Freshness</option>
+      <option value="rating">Rating</option>
+    </select>
+  </div>
+
+  <!-- Filters -->
+  <div id="category-filters" class="filter-row">
+    <button class="filter-chip active" data-filter="all" onclick="filterBy('all',this)">All Products</button>
+    <!-- Loaded dynamically -->
+  </div>
+
+  <div id="state-filters" class="filter-row" style="display:none">
+    <!-- Loaded dynamically -->
+  </div>
+
+  <!-- Product grid -->
+  <div id="shop-loading" class="spinner"></div>
+  <div class="product-grid" id="shop-grid" style="display:none"></div>
+  <div id="shop-empty" style="text-align:center;padding:4rem;color:var(--text-muted);display:none">
+    <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+    <div style="font-size:1rem">No products found matching your search.</div>
+    <button class="btn btn-glass mt-2" onclick="filterBy('all',null)">Clear Filters</button>
+  </div>
+
+  <div id="product-count" style="font-size:0.8rem;color:var(--text-muted);margin-top:1rem;display:none"></div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+// ── State ─────────────────────────────────────────────────────────
+let allProducts = [];
+let availableStates = [];
+let activeFilter = 'all';
+let searchQuery   = '';
+let sortOrder     = 'default';
+
+// ── Load products ─────────────────────────────────────────────────
+async function loadShop() {
+  try {
+    // Check URL params (from category click on home)
+    const params   = new URLSearchParams(window.location.search);
+    const catParam = params.get('category');
+
+    let url = API.products;
+    if (catParam) {
+      url += `?category=${catParam}`;
+      activeFilter = `cat-${catParam}`;
+    }
+
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (catParam) {
+      allProducts = Array.isArray(data) ? data : [];
+    } else {
+      allProducts     = data.products   || [];
+      availableStates = data.states     || [];
+    }
+
+    renderCategoryFilters();
+    renderStateFilters();
+    renderGrid();
+    document.getElementById('shop-loading').style.display = 'none';
+
+  } catch (e) {
+    document.getElementById('shop-loading').style.display = 'none';
+    document.getElementById('shop-empty').style.display = 'block';
+  }
+}
+
+// ── Category filter chips ─────────────────────────────────────────
+function renderCategoryFilters() {
+  const catNames = [...new Set(allProducts.map(p => p.categoryName).filter(Boolean))];
+  const row = document.getElementById('category-filters');
+  catNames.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip';
+    btn.dataset.filter = `cat-${cat}`;
+    btn.textContent = cat;
+    btn.onclick = () => filterBy(`cat-${cat}`, btn);
+    row.appendChild(btn);
+  });
+}
+
+// ── State filter chips ────────────────────────────────────────────
+function renderStateFilters() {
+  if (!availableStates.length) return;
+  const row = document.getElementById('state-filters');
+  row.style.display = 'flex';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-chip';
+  allBtn.dataset.filter = 'all-state';
+  allBtn.textContent = '📍 All States';
+  allBtn.onclick = () => filterByState('all', allBtn);
+  row.appendChild(allBtn);
+
+  availableStates.forEach(state => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip';
+    btn.textContent = `📍 ${state}`;
+    btn.onclick = () => filterByState(state, btn);
+    row.appendChild(btn);
+  });
+}
+
+// ── Search ────────────────────────────────────────────────────────
+let searchTimeout;
+document.getElementById('main-search').addEventListener('input', e => {
+  clearTimeout(searchTimeout);
+  searchQuery = e.target.value.trim();
+  if (searchQuery.length >= 2) {
+    searchTimeout = setTimeout(doSearch, 350);
+  } else if (searchQuery === '') {
+    renderGrid();
+  }
+});
+
+async function doSearch() {
+  try {
+    const res  = await fetch(`${API.products}?search=${encodeURIComponent(searchQuery)}`);
+    const data = await res.json();
+    allProducts = Array.isArray(data) ? data : [];
+    activeFilter = 'all';
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('[data-filter="all"]')?.classList.add('active');
+    renderGrid();
+  } catch (_) {}
+}
+
+// ── Filter ────────────────────────────────────────────────────────
+function filterBy(key, btn) {
+  activeFilter = key;
+  document.querySelectorAll('#category-filters .filter-chip').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderGrid();
+}
+
+function filterByState(state, btn) {
+  document.querySelectorAll('#state-filters .filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  if (state === 'all') { renderGrid(); return; }
+  const filtered = allProducts.filter(p => p.originState === state);
+  displayProducts(filtered);
+}
+
+// ── Sort ──────────────────────────────────────────────────────────
+document.getElementById('sort-select').addEventListener('change', e => {
+  sortOrder = e.target.value;
+  renderGrid();
+});
+
+// ── Render ────────────────────────────────────────────────────────
+function renderGrid() {
+  let products = [...allProducts];
+
+  // Category filter
+  if (activeFilter !== 'all' && activeFilter.startsWith('cat-')) {
+    const catName = activeFilter.replace('cat-', '');
+    products = products.filter(p => p.categoryName === catName);
+  }
+
+  // Search filter (client-side)
+  if (searchQuery && searchQuery.length >= 2) {
+    const q = searchQuery.toLowerCase();
+    products = products.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.description && p.description.toLowerCase().includes(q))
+    );
+  }
+
+  // Sort
+  products = sortProducts(products);
+  displayProducts(products);
+}
+
+function sortProducts(products) {
+  switch (sortOrder) {
+    case 'price-asc':  return [...products].sort((a,b) => a.price - b.price);
+    case 'price-desc': return [...products].sort((a,b) => b.price - a.price);
+    case 'freshness':  return [...products].sort((a,b) => (b.freshnessScore||0) - (a.freshnessScore||0));
+    case 'rating':     return [...products].sort((a,b) => (b.avgRating||0) - (a.avgRating||0));
+    default:           return products;
+  }
+}
+
+function displayProducts(products) {
+  const grid  = document.getElementById('shop-grid');
+  const empty = document.getElementById('shop-empty');
+  const count = document.getElementById('product-count');
+  grid.style.display = 'none';
+  empty.style.display = 'none';
+  count.style.display = 'none';
+
+  if (!products.length) { empty.style.display = 'block'; return; }
+
+  grid.innerHTML = products.map(productCardHTML).join('');
+  grid.style.display = 'grid';
+  count.style.display = 'block';
+  count.textContent = `Showing ${products.length} product${products.length !== 1 ? 's' : ''}`;
+}
+
+// ── Auth state ────────────────────────────────────────────────────
+async function checkAuth() {
+  try {
+    const res = await fetch(API.profile);
+    if (res.ok) document.getElementById('auth-btn').textContent = 'My Account';
+  } catch (_) {}
+}
+
+loadShop();
+checkAuth();
+</script>
+</body>
+</html>

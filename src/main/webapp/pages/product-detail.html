@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Product — Anaaj</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .qty-input { width: 60px; text-align: center; padding: 0.5rem; font-size: 1rem;
+      background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.12);
+      color: var(--text-primary); border-radius: var(--radius-sm); font-family: 'Inter', sans-serif; }
+    .star-select { display: flex; gap: 4px; margin-bottom: 0.75rem; }
+    .star-select .s { font-size: 1.5rem; cursor: pointer; color: rgba(255,255,255,0.2); transition: color 0.15s; }
+    .star-select .s:hover, .star-select .s.active { color: var(--amber); }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand"><div class="logo-icon">🌾</div>Anaaj</a>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="profile.html">My Orders</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="cart.html" class="cart-btn"><span>🛒</span> Cart<span class="cart-badge" id="cart-count" style="display:none">0</span></a>
+    <a href="login.html" class="btn btn-glass btn-sm" id="auth-btn">Login</a>
+  </div>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="section" style="padding-top:1.5rem">
+  <!-- Breadcrumb -->
+  <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem">
+    <a href="shop.html" style="color:var(--blue);text-decoration:none">← Back to Shop</a>
+  </div>
+
+  <div id="detail-loading" class="spinner"></div>
+  <div id="detail-error" style="display:none;text-align:center;padding:4rem;color:var(--text-muted)">
+    Product not found. <a href="shop.html" class="text-blue">Browse Shop →</a>
+  </div>
+
+  <div id="detail-content" style="display:none">
+    <!-- Product Detail Grid -->
+    <div class="product-detail-grid">
+      <div class="product-detail-image" id="prod-image">🌾</div>
+      <div>
+        <div id="prod-organic-badge" style="display:none" class="organic-badge" style="position:static;margin-bottom:0.5rem">🌿 Organic</div>
+        <h1 id="prod-name" style="font-size:1.8rem;font-weight:700;letter-spacing:-0.5px;margin-top:0.5rem"></h1>
+        <div class="stars" id="prod-stars" style="margin:0.5rem 0"></div>
+        <div class="product-detail-price" id="prod-price"></div>
+
+        <div class="product-detail-meta" id="prod-meta"></div>
+
+        <p id="prod-desc" style="color:var(--text-secondary);font-size:0.9rem;line-height:1.75;margin-bottom:1.5rem"></p>
+
+        <div id="prod-freshness" style="margin-bottom:1.5rem"></div>
+
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <input type="number" class="qty-input" id="qty-input" value="1" min="1" max="100"/>
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+          <button class="btn btn-primary btn-lg" id="add-cart-btn" onclick="doAddToCart()">🛒 Add to Cart</button>
+        </div>
+
+        <div id="stock-info" style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-secondary)"></div>
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="reviews-section">
+      <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:1.25rem">Customer Reviews</h2>
+      <div id="review-form-wrap" style="display:none" class="glass" style="padding:1.5rem;margin-bottom:1.5rem;padding:1.5rem">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">Write a Review</h3>
+        <div class="star-select" id="star-select">
+          <span class="s" data-val="1">★</span>
+          <span class="s" data-val="2">★</span>
+          <span class="s" data-val="3">★</span>
+          <span class="s" data-val="4">★</span>
+          <span class="s" data-val="5">★</span>
+        </div>
+        <textarea class="form-input mb-2" id="review-text" placeholder="Share your experience (optional)" style="min-height:70px"></textarea>
+        <button class="btn btn-primary" id="submit-review-btn" onclick="submitReview()">Submit Review</button>
+        <span id="review-msg" style="margin-left:1rem;font-size:0.8rem;display:none"></span>
+      </div>
+      <div id="not-logged-review" style="display:none;font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem">
+        <a href="login.html" class="text-blue">Log in</a> to write a review.
+      </div>
+
+      <div id="reviews-list"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+let currentProductId = null;
+let selectedRating   = 0;
+let isLoggedIn       = false;
+
+const params = new URLSearchParams(window.location.search);
+const productId = params.get('id');
+
+// ── Star selector ────────────────────────────────────────────────
+document.querySelectorAll('#star-select .s').forEach(star => {
+  star.addEventListener('click', () => {
+    selectedRating = parseInt(star.dataset.val);
+    document.querySelectorAll('#star-select .s').forEach((s, i) => {
+      s.classList.toggle('active', i < selectedRating);
+    });
+  });
+});
+
+// ── Qty control ──────────────────────────────────────────────────
+function changeQty(delta) {
+  const inp = document.getElementById('qty-input');
+  const val = Math.max(1, Math.min(100, parseInt(inp.value || 1) + delta));
+  inp.value = val;
+}
+
+// ── Add to cart ──────────────────────────────────────────────────
+function doAddToCart() {
+  const qty = parseInt(document.getElementById('qty-input').value);
+  addToCart(currentProductId, qty);
+}
+
+// ── Submit review ────────────────────────────────────────────────
+async function submitReview() {
+  if (!selectedRating) { showToast('Please select a star rating', 'error'); return; }
+  const comment = document.getElementById('review-text').value;
+  const btn = document.getElementById('submit-review-btn');
+  btn.textContent = 'Submitting…'; btn.disabled = true;
+
+  try {
+    const fd = new FormData();
+    fd.append('productId', currentProductId);
+    fd.append('rating', selectedRating);
+    fd.append('comment', comment);
+
+    const res = await fetch(API.products, { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('Review submitted! Thanks 🙏', 'success');
+      document.getElementById('review-form-wrap').style.display = 'none';
+      loadDetail(); // refresh
+    } else {
+      showToast(data.error || 'Failed to submit review', 'error');
+    }
+  } catch (e) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.textContent = 'Submit Review'; btn.disabled = false;
+  }
+}
+
+// ── Load product detail ──────────────────────────────────────────
+async function loadDetail() {
+  if (!productId) {
+    document.getElementById('detail-loading').style.display = 'none';
+    document.getElementById('detail-error').style.display = 'block';
+    return;
+  }
+
+  try {
+    const [detailRes, authRes] = await Promise.all([
+      fetch(`${API.products}?id=${productId}`),
+      fetch(API.profile)
+    ]);
+
+    isLoggedIn = authRes.ok;
+
+    if (!detailRes.ok) {
+      document.getElementById('detail-loading').style.display = 'none';
+      document.getElementById('detail-error').style.display = 'block';
+      return;
+    }
+
+    const data    = await detailRes.json();
+    const product = data.product;
+    const reviews = data.reviews || [];
+
+    currentProductId = product.id;
+    document.title = `${product.name} — Anaaj`;
+
+    // Image
+    const imgEl = document.getElementById('prod-image');
+    if (product.imageUrl) {
+      imgEl.innerHTML = `<img src="${CTX}/images/${product.imageUrl}" alt="${product.name}">`;
+    } else {
+      imgEl.textContent = categoryEmoji(product.categoryName);
+    }
+
+    // Organic badge
+    if (product.isOrganic || product.organic) {
+      document.getElementById('prod-organic-badge').style.display = 'inline-block';
+    }
+
+    document.getElementById('prod-name').textContent = product.name;
+    document.getElementById('prod-stars').innerHTML =
+      renderStars(product.avgRating || 0) +
+      `<span class="rating-count">${product.avgRating ? product.avgRating.toFixed(1) + ' avg' : 'No reviews yet'} (${reviews.length})</span>`;
+    document.getElementById('prod-price').innerHTML =
+      `₹${Number(product.price).toFixed(2)} <span class="product-unit">/ ${product.unit || 'kg'}</span>`;
+    document.getElementById('prod-desc').textContent = product.description || '';
+    document.getElementById('prod-freshness').innerHTML = freshnessBar(product.freshnessScore || 85);
+
+    // Meta chips
+    const meta = [
+      `📍 ${product.originState || 'India'}`,
+      `📦 ${product.stock > 0 ? product.stock + ' kg in stock' : 'Out of stock'}`,
+      `🏷️ ${product.categoryName || 'Grain'}`,
+    ];
+    document.getElementById('prod-meta').innerHTML = meta.map(m =>
+      `<div class="meta-chip">${m}</div>`).join('');
+
+    if (product.stock <= 0) {
+      document.getElementById('add-cart-btn').disabled = true;
+      document.getElementById('add-cart-btn').textContent = 'Out of Stock';
+    }
+
+    // Review form visibility
+    if (isLoggedIn) {
+      document.getElementById('review-form-wrap').style.display = 'block';
+    } else {
+      document.getElementById('not-logged-review').style.display = 'block';
+    }
+
+    // Reviews list
+    const list = document.getElementById('reviews-list');
+    if (!reviews.length) {
+      list.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:1rem 0">No reviews yet. Be the first!</div>';
+    } else {
+      list.innerHTML = reviews.map(r => `
+        <div class="review-card">
+          <div class="review-header">
+            <span class="reviewer-name">${r.userName || 'User'}</span>
+            <span class="review-date">${new Date(r.createdAt).toLocaleDateString('en-IN')}</span>
+          </div>
+          <div class="stars" style="margin:0.3rem 0">${renderStars(r.rating)}</div>
+          ${r.comment ? `<p class="review-text">${r.comment}</p>` : ''}
+        </div>`).join('');
+    }
+
+    document.getElementById('detail-loading').style.display = 'none';
+    document.getElementById('detail-content').style.display = 'block';
+
+  } catch (e) {
+    document.getElementById('detail-loading').style.display = 'none';
+    document.getElementById('detail-error').style.display = 'block';
+  }
+}
+
+loadDetail();
+</script>
+</body>
+</html>

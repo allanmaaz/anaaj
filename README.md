@@ -112,7 +112,7 @@ AnaajApp/
 | Admin stats: total orders + revenue | ✅ |
 | Glassmorphism responsive UI | ✅ |
 
----
+
 
 ## 🔒 Security
 
@@ -121,17 +121,4 @@ AnaajApp/
 - Session invalidated on logout via `session.invalidate()`
 - Admin routes check `role == "admin"` on every request
 
----
-
-## 📦 Bulk Discount Tiers
-
-| Quantity | Discount |
-|---|---|
-| 10+ kg | 5% off |
-| 25+ kg | 10% off |
-| 50+ kg | 15% off |
-| 80+ kg | 20% off |
-
----
-
-*Anaaj — The Ecommerce · College Project 2025*
+*Anaaj — The Ecommerce · College Project 2026*

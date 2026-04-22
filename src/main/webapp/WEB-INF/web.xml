@@ -10,7 +10,7 @@
 
   <!-- Default welcome file -->
   <welcome-file-list>
-    <welcome-file>pages/index.html</welcome-file>
+    <welcome-file>index.html</welcome-file>
   </welcome-file-list>
 
   <!-- Session timeout — 60 minutes -->

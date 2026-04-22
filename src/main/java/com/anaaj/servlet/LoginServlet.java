@@ -28,9 +28,8 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        resp.setStatus(200);
-        resp.setContentType("application/json");
-        resp.getWriter().print("{\"message\":\"Use frontend /login page\"}");
+        // Redirect GET /login back to the React frontend (index.html)
+        resp.sendRedirect(req.getContextPath() + "/");
     }
 
     @Override

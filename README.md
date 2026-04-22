@@ -20,12 +20,25 @@ npm run dev
 
 ---
 
-## 🏗️ Architecture
+## 🛠️ Tech Stack
 
-- **Backend:** Java 17, Maven, Jakarta Servlets, JDBC.
-- **Database:** In-memory H2 (persistent data simulation).
-- **Frontend:** React 18, Vite, Glassmorphism CSS, Lucide icons.
-- **Communication:** REST API with JSON payloads.
+### Frontend
+- **Framework:** React 18 (Vite-powered)
+- **Styling:** Custom Vanilla CSS with a **Pitch Black Glassmorphism** design system.
+- **Icons:** Lucide React & Custom SVG iconography.
+- **State Management:** React Hooks (useState, useEffect, useContext).
+- **Navigation:** React Router DOM v6.
+
+### Backend
+- **Language:** Java 17
+- **Architecture:** Jakarta Servlets (Layered DAO Pattern).
+- **Build Tool:** Maven 3.9
+- **Security:** SHA-256 password hashing & Role-based Access Control (RBAC).
+- **Server:** Apache Tomcat 10.
+
+### Database
+- **Engine:** H2 Embedded Database (In-memory).
+- **Communication:** JDBC (Java Database Connectivity) with `PreparedStatement` for SQL injection protection.
 
 ---
 

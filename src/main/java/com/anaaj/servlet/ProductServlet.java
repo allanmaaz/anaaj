@@ -14,16 +14,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
-/**
- * Serves product data as JSON (REST-style) for the SPA frontend.
- * GET  /api/products             → all products
- * GET  /api/products?search=...  → search
- * GET  /api/products?category=X  → filter by category
- * GET  /api/products?state=X     → filter by origin state
- * GET  /api/products?id=X        → single product with reviews
- * GET  /api/products?featured=1  → featured products
- * POST /api/products/review      → add review
- */
+
 @WebServlet("/api/products/*")
 public class ProductServlet extends HttpServlet {
 
@@ -67,16 +58,19 @@ public class ProductServlet extends HttpServlet {
                 out.print(gson.toJson(productDAO.getFeaturedProducts()));
 
             } else {
-                // Return all + origin states for filters
                 List<Product> products = productDAO.getAllProducts();
-                List<String>  states   = productDAO.getOriginStates();
+                List<String> states = productDAO.getOriginStates();
                 out.print("{\"products\":" + gson.toJson(products) + ",\"states\":" + gson.toJson(states) + "}");
             }
-
-        } catch (Exception e) {
+        } catch (Throwable e) {
             resp.setStatus(500);
-            out.print("{\"error\":\"" + e.getMessage() + "\"}");
-            getServletContext().log("ProductServlet GET error", e);
+            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getName();
+            if (e.getCause() != null && e.getCause().getMessage() != null) {
+                msg += " | Cause: " + e.getCause().getMessage();
+            }
+            msg = msg.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+            out.print("{\"error\":\"" + msg + "\"}");
+            getServletContext().log("ProductServlet error", e);
         }
     }
 

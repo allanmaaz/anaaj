@@ -18,15 +18,18 @@ public class RegisterServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         if (session != null && session.getAttribute("userId") != null) {
-            resp.sendRedirect(req.getContextPath() + "/pages/index.html");
+            resp.sendRedirect("/");
             return;
         }
-        resp.sendRedirect(req.getContextPath() + "/pages/register.html");
+        resp.sendRedirect("/register");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        resp.setContentType("application/json;charset=UTF-8");
+        java.io.PrintWriter out = resp.getWriter();
 
         String name     = req.getParameter("name");
         String email    = req.getParameter("email");
@@ -34,20 +37,22 @@ public class RegisterServlet extends HttpServlet {
         String phone    = req.getParameter("phone");
         String address  = req.getParameter("address");
 
-        // ── Basic server-side validation ────────────────────────
         if (isBlank(name) || isBlank(email) || isBlank(password)) {
-            resp.sendRedirect(req.getContextPath() + "/pages/register.html?error=empty");
+            resp.setStatus(400);
+            out.print("{\"error\":\"empty\"}");
             return;
         }
 
         if (password.length() < 6) {
-            resp.sendRedirect(req.getContextPath() + "/pages/register.html?error=shortpwd");
+            resp.setStatus(400);
+            out.print("{\"error\":\"shortpwd\"}");
             return;
         }
 
         try {
             if (userDAO.emailExists(email.trim())) {
-                resp.sendRedirect(req.getContextPath() + "/pages/register.html?error=duplicate");
+                resp.setStatus(409);
+                out.print("{\"error\":\"duplicate\"}");
                 return;
             }
 
@@ -55,22 +60,22 @@ public class RegisterServlet extends HttpServlet {
             int newId = userDAO.registerUser(user);
 
             if (newId == -1) {
-                resp.sendRedirect(req.getContextPath() + "/pages/register.html?error=server");
+                resp.setStatus(500);
+                out.print("{\"error\":\"server\"}");
                 return;
             }
 
-            // Auto-login after registration
             HttpSession session = req.getSession(true);
             session.setAttribute("userId",   newId);
             session.setAttribute("userName", name.trim());
             session.setAttribute("role",     "user");
             session.setMaxInactiveInterval(60 * 60);
 
-            resp.sendRedirect(req.getContextPath() + "/pages/index.html?welcome=1");
-
+            out.print("{\"success\":true}");
         } catch (Exception e) {
             getServletContext().log("RegisterServlet error", e);
-            resp.sendRedirect(req.getContextPath() + "/pages/register.html?error=server");
+            resp.setStatus(500);
+            out.print("{\"error\":\"server\"}");
         }
     }
 

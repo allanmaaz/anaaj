@@ -19,14 +19,29 @@ export default defineConfig({
       '/login': {
         target: 'http://localhost:8080/AnaajApp',
         changeOrigin: true,
+        bypass: function(req, res, options) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) {
+            return '/index.html';
+          }
+        }
       },
       '/logout': {
         target: 'http://localhost:8080/AnaajApp',
         changeOrigin: true,
+        bypass: function(req, res, options) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) {
+            return '/index.html';
+          }
+        }
       },
       '/register': {
         target: 'http://localhost:8080/AnaajApp',
         changeOrigin: true,
+        bypass: function(req, res, options) {
+          if (req.headers.accept && req.headers.accept.includes('text/html')) {
+            return '/index.html';
+          }
+        }
       },
     },
   },

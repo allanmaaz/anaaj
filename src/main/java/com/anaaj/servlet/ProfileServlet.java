@@ -30,8 +30,8 @@ public class ProfileServlet extends HttpServlet {
 
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            resp.setStatus(401);
-            out.print("{\"error\":\"Unauthorized\"}");
+            resp.setStatus(200);
+            out.print("{\"authenticated\":false}");
             return;
         }
 

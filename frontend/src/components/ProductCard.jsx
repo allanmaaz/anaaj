@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { showToast } from './Toast';
@@ -12,6 +13,7 @@ function getEmoji(name) { return CATEGORY_EMOJI[name] || '🌾'; }
 
 export default function ProductCard({ product: p }) {
   const { addToCart } = useCart();
+  const [imgError, setImgError] = useState(false);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -30,9 +32,14 @@ export default function ProductCard({ product: p }) {
     <Link to={`/product/${p.id}`} style={{ textDecoration: 'none' }}>
       <div className="product-card">
         <div className="product-card-image">
-          {p.imageUrl
-            ? <img src={`/images/${p.imageUrl}`} alt={p.name} loading="lazy" />
-            : getEmoji(p.categoryName)}
+          {p.imageUrl && !imgError
+            ? <img 
+                src={p.imageUrl.startsWith('http') ? p.imageUrl : `/images/${p.imageUrl}`} 
+                alt={p.name} 
+                loading="lazy" 
+                onError={() => setImgError(true)}
+              />
+            : <div style={{fontSize: '3rem'}}>{getEmoji(p.categoryName)}</div>}
           {(p.organic || p.isOrganic) && <span className="organic-badge">🌿 Organic</span>}
         </div>
         <div className="product-card-body">

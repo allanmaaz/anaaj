@@ -25,21 +25,21 @@ export const api = {
   getOrders:   ()      => fetch(`${BASE}/api/orders`).then(r => r.json()),
   getOrder:    (id)    => fetch(`${BASE}/api/orders?id=${id}`).then(r => r.json()),
   placeOrder:  (addr)  => {
-    const fd = new FormData(); fd.append('address', addr);
+    const fd = new URLSearchParams(); fd.append('address', addr);
     return fetch(`${BASE}/api/orders`, { method: 'POST', body: fd }).then(r => r.json());
   },
 
   // ── Profile ────────────────────────────────────────────────
   getProfile:    ()     => fetch(`${BASE}/api/profile`).then(r => ({ ok: r.ok, data: r.json() })),
   updateProfile: (data) => {
-    const fd = new FormData();
+    const fd = new URLSearchParams();
     Object.entries(data).forEach(([k, v]) => fd.append(k, v));
     return fetch(`${BASE}/api/profile`, { method: 'POST', body: fd }).then(r => r.json());
   },
 
   // ── Reviews ────────────────────────────────────────────────
   addReview: (productId, rating, comment) => {
-    const fd = new FormData();
+    const fd = new URLSearchParams();
     fd.append('productId', productId); fd.append('rating', rating); fd.append('comment', comment);
     return fetch(`${BASE}/api/products`, { method: 'POST', body: fd }).then(r => r.json());
   },
@@ -52,20 +52,28 @@ export const api = {
   adminEditProduct:   (d) => { const fd = buildFD({ action: 'editProduct', ...d }); return fetch(`${BASE}/api/admin`, { method: 'POST', body: fd }).then(r => r.json()); },
   adminDeleteProduct: (id) => { const fd = buildFD({ action: 'deleteProduct', id }); return fetch(`${BASE}/api/admin`, { method: 'POST', body: fd }).then(r => r.json()); },
   adminUpdateStatus:  (orderId, status) => { const fd = buildFD({ action: 'updateOrderStatus', orderId, status }); return fetch(`${BASE}/api/admin`, { method: 'POST', body: fd }).then(r => r.json()); },
+  adminUsers:         () => fetch(`${BASE}/api/admin/users`).then(r => r.json()),
+  adminUpdateUserRole: (targetId, newRole) => {
+    return fetch(`${BASE}/api/admin/users`, {
+      method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: `targetId=${targetId}&newRole=${newRole}`
+    }).then(r => r.json());
+  }
 };
 
 function buildFD(obj) {
-  const fd = new FormData();
+  const fd = new URLSearchParams();
   Object.entries(obj).forEach(([k, v]) => fd.append(k, v));
   return fd;
 }
 
-/** Auth: check if user is logged in */
 export async function getAuthUser() {
   try {
     const res = await fetch(`${BASE}/api/profile`);
     if (!res.ok) return null;
-    return await res.json();
+    const data = await res.json();
+    if (data.authenticated === false) return null;
+    return data;
   } catch {
     return null;
   }

@@ -6,16 +6,24 @@ import FreshnessBar from '../../components/FreshnessBar';
 
 const EMPTY_FORM = { name:'', price:'', unit:'kg', stock:'', categoryId:'1', originState:'', freshnessScore:'90', description:'', imageUrl:'', isOrganic:false };
 
-function AdminSidebar() {
+function AdminSidebar({ currentUser }) {
+  const navigate = useNavigate();
   return (
     <aside className="admin-sidebar">
       <div className="logo">🌾 Anaaj Admin</div>
       <ul className="admin-nav">
         <li><Link to="/admin/products" className="active">📦 Products</Link></li>
         <li><Link to="/admin/orders">🧾 Orders</Link></li>
+        {currentUser?.email?.includes('maazimdad') && (
+          <li><Link to="/admin/users">👥 Master Users</Link></li>
+        )}
         <li><Link to="/">🏠 Home</Link></li>
         <li><Link to="/shop">🛍️ Shop</Link></li>
-        <li><a href="/logout" style={{ color:'var(--rose)' }}>⏻ Logout</a></li>
+        <li>
+          <a href="#" style={{ color:'var(--rose)' }} onClick={(e) => { e.preventDefault(); fetch('/logout').then(() => navigate('/login')); }}>
+            ⏻ Logout
+          </a>
+        </li>
       </ul>
     </aside>
   );
@@ -26,6 +34,7 @@ export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [stats, setStats]       = useState(null);
   const [loading, setLoading]   = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const [modal, setModal]       = useState(false);
   const [editing, setEditing]   = useState(null);  // null = add new
   const [form, setForm]         = useState(EMPTY_FORM);
@@ -34,7 +43,10 @@ export default function AdminProducts() {
   useEffect(() => {
     getAuthUser().then(u => {
       if (!u || u.role !== 'admin') navigate('/');
-      else load();
+      else {
+        setCurrentUser(u);
+        load();
+      }
     });
   }, []);
 
@@ -80,7 +92,7 @@ export default function AdminProducts() {
 
   return (
     <div className="admin-layout">
-      <AdminSidebar />
+      <AdminSidebar currentUser={currentUser} />
       <main className="admin-content">
         <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'1.5rem' }}>
           <div className="admin-page-title" style={{ marginBottom:0 }}>📦 Products</div>

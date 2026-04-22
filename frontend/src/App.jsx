@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider }  from './context/CartContext';
 import { ToastContainer } from './components/Toast';
 import Navbar from './components/Navbar';
+import MandiTicker from './components/MandiTicker';
 
 // Pages
 import Home          from './pages/Home';
@@ -15,12 +16,14 @@ import Login         from './pages/Login';
 import Register      from './pages/Register';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders   from './pages/admin/AdminOrders';
+import AdminUsers    from './pages/admin/AdminUsers';
 
 export default function App() {
   return (
     <BrowserRouter>
       <CartProvider>
         <Navbar />
+        <MandiTicker />
         <Routes>
           <Route path="/"                   element={<Home />} />
           <Route path="/shop"               element={<Shop />} />
@@ -33,6 +36,7 @@ export default function App() {
           <Route path="/register"           element={<Register />} />
           <Route path="/admin/products"     element={<AdminProducts />} />
           <Route path="/admin/orders"       element={<AdminOrders />} />
+          <Route path="/admin/users"        element={<AdminUsers />} />
         </Routes>
         <ToastContainer />
       </CartProvider>

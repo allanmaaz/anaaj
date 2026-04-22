@@ -112,6 +112,31 @@ public class UserDAO {
         }
     }
 
+    /** Fetches all users for the Master Admin panel. */
+    public java.util.List<User> getAllUsers() throws SQLException {
+        java.util.List<User> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM users ORDER BY created_at DESC";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+             while (rs.next()) {
+                 list.add(mapRow(rs));
+             }
+        }
+        return list;
+    }
+
+    /** Exclusively for Master Admin to change roles */
+    public boolean updateUserRole(int userId, String newRole) throws SQLException {
+        String sql = "UPDATE users SET role=? WHERE id=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, newRole);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     // ── Helper ─────────────────────────────────────────────────
     private User mapRow(ResultSet rs) throws SQLException {
         User u = new User();

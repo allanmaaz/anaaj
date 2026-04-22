@@ -4,22 +4,46 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import org.h2.tools.RunScript;
+
 public class DBConnection {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/anaajdb?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true";
-    private static final String USER = "root";
-    private static final String PASSWORD = "root"; // ← Update with your MySQL password
+    // Switch to embedded H2 zero-setup database
+    private static final String URL = "jdbc:h2:mem:anaajdb;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE";
+    private static final String USER = "sa";
+    private static final String PASSWORD = ""; // No password required for H2 by default
+
+    private static boolean isInitialized = false;
 
     static {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("MySQL JDBC Driver not found.", e);
+            Class.forName("org.h2.Driver");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public static synchronized Connection getConnection() throws SQLException {
+        Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        
+        if (!isInitialized) {
+            try {
+                InputStream is = DBConnection.class.getResourceAsStream("/anaaj_schema_h2.sql");
+                if (is != null) {
+                    RunScript.execute(conn, new InputStreamReader(is, "UTF-8"));
+                    isInitialized = true;
+                } else {
+                    System.err.println("Could not find /anaaj_schema_h2.sql in classpath!");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new SQLException("Failed to initialize database schema: " + ex.getMessage());
+            }
+        }
+        
+        return conn;
     }
 
     private DBConnection() {

@@ -93,23 +93,34 @@ export default function Home() {
         <div className="hero-visual">
           <div className="hero-card">
             <div className="hero-stats">
-              <div className="stat-item"><div className="stat-num">50+</div><div className="stat-label">Products</div></div>
-              <div className="stat-item"><div className="stat-num">18</div><div className="stat-label">States</div></div>
-              <div className="stat-item"><div className="stat-num">100%</div><div className="stat-label">Organic</div></div>
+              <div className="stat-item">
+                <div className="stat-num">50+</div>
+                <div className="stat-label">Products</div>
+              </div>
+              <div style={{ width:1, height:30, background:'rgba(255,255,255,0.1)' }} />
+              <div className="stat-item">
+                <div className="stat-num">18</div>
+                <div className="stat-label">States</div>
+              </div>
+              <div style={{ width:1, height:30, background:'rgba(255,255,255,0.1)' }} />
+              <div className="stat-item">
+                <div className="stat-num">100%</div>
+                <div className="stat-label">Organic</div>
+              </div>
             </div>
           </div>
-          <div className="hero-card" style={{ display:'flex',gap:'1rem',alignItems:'center' }}>
-            <div style={{ fontSize:'2.5rem' }}>🌾</div>
+          <div className="hero-card">
+            <div className="hero-card-icon">🌾</div>
             <div>
-              <div style={{ fontWeight:600,fontSize:'0.9rem' }}>Freshness Guaranteed</div>
-              <div style={{ color:'var(--text-secondary)',fontSize:'0.8rem' }}>Every batch has a freshness score</div>
+              <div style={{ fontWeight:700,fontSize:'0.9rem',color:'#fff' }}>Freshness Guaranteed</div>
+              <div style={{ color:'var(--text-muted)',fontSize:'0.75rem' }}>Every batch has a freshness score</div>
             </div>
           </div>
-          <div className="hero-card" style={{ display:'flex',gap:'1rem',alignItems:'center' }}>
-            <div style={{ fontSize:'2.5rem' }}>🏭</div>
+          <div className="hero-card">
+            <div className="hero-card-icon">🏬</div>
             <div>
-              <div style={{ fontWeight:600,fontSize:'0.9rem' }}>20% Bulk Discount</div>
-              <div style={{ color:'var(--text-secondary)',fontSize:'0.8rem' }}>Orders over 80 kg</div>
+              <div style={{ fontWeight:700,fontSize:'0.9rem',color:'#fff' }}>20% Bulk Discount</div>
+              <div style={{ color:'var(--text-muted)',fontSize:'0.75rem' }}>Orders over 80 kg</div>
             </div>
           </div>
         </div>
@@ -175,7 +186,7 @@ export default function Home() {
       </section>
 
       <footer style={{ borderTop:'0.5px solid rgba(255,255,255,0.07)',padding:'2rem',textAlign:'center',color:'var(--text-muted)',fontSize:'0.8rem',position:'relative',zIndex:1 }}>
-        © 2025 Anaaj — The Ecommerce · Built with ☕ Java + JDBC + React · College Project
+        © 2026 Anaaj — The Ecommerce · Built with ☕ Java + JDBC + React · Java Mini Project
       </footer>
     </>
   );

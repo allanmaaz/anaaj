@@ -13,17 +13,47 @@ export default function Shop() {
   const [stateFilter,setStateFilter] = useState('all');
   const [sort,      setSort]      = useState('default');
 
-  // Load all products once
+  // Fetch states and initial products, plus live polling mapping
   useEffect(() => {
-    api.getProducts()
-      .then(data => {
-        setProducts(data.products || []);
+    const fetchLive = () => {
+      api.getProducts().then(data => {
         setStates(data.states || []);
-      })
-      .finally(() => setLoading(false));
+        setProducts(data.products || []);
+      }).catch(e => console.error("Live fetch error", e));
+    };
+    
+    fetchLive();
+    // Real-time background sync every 5 seconds!
+    const pollId = setInterval(fetchLive, 5000);
+    return () => clearInterval(pollId);
   }, []);
 
-  // Derive displayed list
+  // Server-side search with debounce
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setLoading(true);
+      if (search.trim().length >= 1) {
+        api.searchProducts(search)
+          .then(data => {
+            // backend search returns list of products
+            setProducts(data || []);
+          })
+          .catch(e => console.error(e))
+          .finally(() => setLoading(false));
+      } else {
+        // If empty, fetch all again
+        api.getProducts()
+          .then(data => {
+            setProducts(data.products || []);
+          })
+          .catch(e => console.error(e))
+          .finally(() => setLoading(false));
+      }
+    }, 400); // 400ms debounce
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Derive displayed list for filters/sort
   const displayed = (() => {
     let list = [...products];
     // category filter
@@ -33,12 +63,7 @@ export default function Shop() {
     }
     // state filter
     if (stateFilter !== 'all') list = list.filter(p => p.originState === stateFilter);
-    // search
-    if (search.trim().length >= 2) {
-      const q = search.toLowerCase();
-      list = list.filter(p => p.name.toLowerCase().includes(q) ||
-                              (p.description && p.description.toLowerCase().includes(q)));
-    }
+    
     // sort
     if (sort === 'price-asc')  list.sort((a,b) => a.price - b.price);
     if (sort === 'price-desc') list.sort((a,b) => b.price - a.price);
@@ -47,68 +72,127 @@ export default function Shop() {
     return list;
   })();
 
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   // Unique category names for filter chips
   const categories = [...new Set(products.map(p => p.categoryName).filter(Boolean))];
 
+  const clearAllFilters = () => {
+    setCatFilter('all');
+    setStateFilter('all');
+    setSearch('');
+  };
+
   return (
-    <div className="section" style={{ paddingTop:'2rem' }}>
-      {/* Search + Sort */}
-      <div style={{ display:'flex',gap:'1rem',flexWrap:'wrap',alignItems:'center',marginBottom:'1.5rem' }}>
-        <div className="search-wrap" style={{ flex:1,minWidth:'200px' }}>
+    <div className="section" style={{ paddingTop:'2.5rem' }}>
+      {/* Header with Search + Filter Trigger */}
+      <div className="shop-controls">
+        <div className="search-wrap">
           <span className="search-icon">🔍</span>
           <input
             className="search-bar"
             id="main-search"
             type="text"
-            placeholder="Search rice, dal, millet…"
+            placeholder="Search products..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           <span className="search-shortcut">⌘K</span>
         </div>
-        <select
-          className="status-select"
-          style={{ padding:'0.65rem 1rem' }}
-          value={sort}
-          onChange={e => setSort(e.target.value)}
-        >
-          <option value="default">Sort: Default</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="freshness">Freshness</option>
-          <option value="rating">Rating</option>
-        </select>
+
+        <div style={{ display:'flex', gap:'0.75rem' }}>
+          <select
+            className="status-select"
+            style={{ height:'44px', padding:'0 1rem' }}
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+          >
+            <option value="default">Sort: Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="freshness">Freshness</option>
+            <option value="rating">Rating</option>
+          </select>
+
+          <button 
+            className={`filter-btn ${(catFilter!=='all' || stateFilter!=='all' || drawerOpen) ? 'active' : ''}`}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            <i>Tune</i> Filters
+          </button>
+        </div>
+
+        {/* Filter Drawer */}
+        {drawerOpen && (
+          <div className="filter-drawer">
+            <div className="filter-group">
+              <label className="filter-group-label">Categories</label>
+              <div className="filter-grid">
+                <button
+                  className={`filter-chip ${catFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => { setCatFilter('all'); setDrawerOpen(false); }}
+                >All Products</button>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    className={`filter-chip ${catFilter === cat ? 'active' : ''}`}
+                    onClick={() => { setCatFilter(cat); setDrawerOpen(false); }}
+                  >{cat}</button>
+                ))}
+              </div>
+            </div>
+
+            {states.length > 0 && (
+              <div className="filter-group" style={{ marginTop:'1.5rem' }}>
+                <label className="filter-group-label">Origin State</label>
+                <div className="filter-grid">
+                  <button
+                    className={`filter-chip ${stateFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => { setStateFilter('all'); setDrawerOpen(false); }}
+                  >All States</button>
+                  {states.map(s => (
+                    <button
+                      key={s}
+                      className={`filter-chip ${stateFilter === s ? 'active' : ''}`}
+                      onClick={() => { setStateFilter(s); setDrawerOpen(false); }}
+                    >{s}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div style={{ marginTop:'1.5rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,0.1)' }}>
+              <button className="btn btn-glass btn-block btn-sm" onClick={() => setDrawerOpen(false)}>
+                Done
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Category Chips */}
-      <div className="filter-row">
-        <button
-          className={`filter-chip ${catFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setCatFilter('all')}
-        >All Products</button>
-        {categories.map(cat => (
-          <button
-            key={cat}
-            className={`filter-chip ${catFilter === cat ? 'active' : ''}`}
-            onClick={() => setCatFilter(cat)}
-          >{cat}</button>
-        ))}
-      </div>
-
-      {/* State Chips */}
-      {states.length > 0 && (
-        <div className="filter-row">
-          <button
-            className={`filter-chip ${stateFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setStateFilter('all')}
-          >📍 All States</button>
-          {states.map(s => (
-            <button
-              key={s}
-              className={`filter-chip ${stateFilter === s ? 'active' : ''}`}
-              onClick={() => setStateFilter(s)}
-            >📍 {s}</button>
-          ))}
+      {/* Active Filters Bar */}
+      {(catFilter!=='all' || stateFilter!=='all' || search) && (
+        <div className="active-filters-bar">
+          <span style={{ fontSize:'0.75rem', color:'var(--text-muted)', marginRight:'4px' }}>Active:</span>
+          {catFilter !== 'all' && (
+            <div className="active-filter-tag">
+              {catFilter}
+              <span className="remove" onClick={() => setCatFilter('all')}>×</span>
+            </div>
+          )}
+          {stateFilter !== 'all' && (
+            <div className="active-filter-tag">
+              📍 {stateFilter}
+              <span className="remove" onClick={() => setStateFilter('all')}>×</span>
+            </div>
+          )}
+          {search && (
+            <div className="active-filter-tag">
+              Query: {search}
+              <span className="remove" onClick={() => setSearch('')}>×</span>
+            </div>
+          )}
+          <button className="clear-all-btn" onClick={clearAllFilters}>Clear All</button>
         </div>
       )}
 
@@ -117,9 +201,10 @@ export default function Shop() {
       {!loading && displayed.length === 0 && (
         <div style={{ textAlign:'center',padding:'4rem',color:'var(--text-muted)' }}>
           <div style={{ fontSize:'3rem',marginBottom:'1rem' }}>🔍</div>
-          <div>No products found matching your search.</div>
-          <button className="btn btn-glass mt-2" onClick={() => { setSearch(''); setCatFilter('all'); setStateFilter('all'); }}>
-            Clear Filters
+          <div style={{ fontSize:'1.1rem', fontWeight:600, color:'var(--text-primary)' }}>No matches found</div>
+          <p style={{ marginTop:'0.5rem', opacity:0.7 }}>Try adjusting your filters or search terms.</p>
+          <button className="btn btn-glass mt-3" onClick={clearAllFilters}>
+            Clear All Filters
           </button>
         </div>
       )}
@@ -128,8 +213,8 @@ export default function Shop() {
           <div className="product-grid">
             {displayed.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
-          <div style={{ fontSize:'0.8rem',color:'var(--text-muted)',marginTop:'1rem' }}>
-            Showing {displayed.length} product{displayed.length !== 1 ? 's' : ''}
+          <div style={{ fontSize:'0.8rem',color:'var(--text-muted)',marginTop:'2rem', textAlign:'center', opacity:0.6 }}>
+            Showing {displayed.length} premium products
           </div>
         </>
       )}

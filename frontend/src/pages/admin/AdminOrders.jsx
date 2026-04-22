@@ -11,11 +11,15 @@ export default function AdminOrders() {
   const [orders,  setOrders]  = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter,  setFilter]  = useState('all');
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     getAuthUser().then(u => {
       if (!u || u.role !== 'admin') navigate('/');
-      else api.adminOrders().then(data => { setOrders(Array.isArray(data) ? data : []); setLoading(false); });
+      else {
+        setCurrentUser(u);
+        api.adminOrders().then(data => { setOrders(Array.isArray(data) ? data : []); setLoading(false); });
+      }
     });
   }, []);
 
@@ -30,15 +34,21 @@ export default function AdminOrders() {
   const displayed = filter === 'all' ? orders : orders.filter(o => o.status === filter);
 
   return (
-    <div style={{ display:'grid',gridTemplateColumns:'220px 1fr',minHeight:'calc(100vh - 64px)' }}>
+    <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="logo">🌾 Anaaj Admin</div>
         <ul className="admin-nav">
           <li><Link to="/admin/products">📦 Products</Link></li>
           <li><Link to="/admin/orders" className="active">🧾 Orders</Link></li>
+          {currentUser?.email?.includes('maazimdad') && (
+            <li><Link to="/admin/users">👥 Master Users</Link></li>
+          )}
           <li><Link to="/">🏠 Home</Link></li>
-          <li><Link to="/shop">🛍️ Shop</Link></li>
-          <li><a href="/logout" style={{ color:'var(--rose)' }}>⏻ Logout</a></li>
+          <li>
+            <a href="#" style={{ color:'var(--rose)' }} onClick={(e) => { e.preventDefault(); fetch('/logout').then(() => navigate('/login')); }}>
+              ⏻ Logout
+            </a>
+          </li>
         </ul>
       </aside>
 

@@ -28,8 +28,9 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Redirect GET /login back to the React frontend (index.html)
-        resp.sendRedirect(req.getContextPath() + "/");
+        // Forward GET /login to the React frontend (index.html)
+        // We use forward instead of redirect to preserve the URL fragment (#access_token)
+        req.getRequestDispatcher("/index.html").forward(req, resp);
     }
 
     @Override

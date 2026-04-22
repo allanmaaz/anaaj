@@ -51,7 +51,7 @@ mini/
 │   │   ├── components/# Reusable UI Elements
 │   │   └── pages/    # Main Application Views
 │   └── public/images/ # Product Assets
-└── docs/             # Technical Documentation
+└── docs/             # Technical Documentation & [Deployment Guide](docs/DEPLOYMENT.md)
 ```
 
 ---

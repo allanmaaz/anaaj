@@ -36,11 +36,23 @@ npm run dev
 
 ## 📂 Navigation Guide
 
-- `src/main/java/` — Core backend logic (DAO, Model, Servlet).
-- `src/main/resources/` — Database schema & seed data.
-- `frontend/src/` — React application logic.
-- `frontend/public/images/` — Custom-generated premium product assets.
-- `docs/` — Technical explanations & project documentation.
+```text
+mini/
+├── src/main/java/com/anaaj/
+│   ├── dao/          # JDBC Data Access Objects
+│   ├── model/        # Java POJO Models
+│   ├── servlet/      # Jakarta REST Servlets
+│   └── util/         # DB Connection Helper
+├── src/main/resources/
+│   └── anaaj_schema_h2.sql
+├── frontend/
+│   ├── src/
+│   │   ├── api/      # Unified API Service
+│   │   ├── components/# Reusable UI Elements
+│   │   └── pages/    # Main Application Views
+│   └── public/images/ # Product Assets
+└── docs/             # Technical Documentation
+```
 
 ---
 

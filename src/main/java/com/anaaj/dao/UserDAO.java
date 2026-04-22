@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data Access Object for User entity.
@@ -113,8 +115,8 @@ public class UserDAO {
     }
 
     /** Fetches all users for the Master Admin panel. */
-    public java.util.List<User> getAllUsers() throws SQLException {
-        java.util.List<User> list = new java.util.ArrayList<>();
+    public List<User> getAllUsers() throws SQLException {
+        List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY created_at DESC";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);

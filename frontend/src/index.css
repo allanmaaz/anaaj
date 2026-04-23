@@ -37,7 +37,23 @@ body {
   -webkit-font-smoothing: antialiased;
   line-height:1.5;
   overflow-x:hidden;
+  position: relative;
 }
+
+body::before, body::after {
+  content: '';
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--blue);
+  filter: blur(150px);
+  opacity: 0.15;
+  z-index: -1;
+  pointer-events: none;
+}
+body::before { top: -10%; left: -10%; }
+body::after { bottom: -10%; right: -10%; background: var(--cyan); }
 
 /* ── Layout ──────────────────────────────────── */
 .container { max-width:1200px;margin:0 auto;padding:0 2rem; }
@@ -74,6 +90,7 @@ body {
 .navbar-links a { text-decoration:none;color:var(--text-secondary);font-size:0.9rem;font-weight:500;transition:var(--transition); }
 .navbar-links a:hover { color:#fff; }
 .navbar-links a.active { color:var(--blue); }
+.nav-icon { font-size: 1.1rem; display: none; }
 
 .navbar-actions { display:flex;gap:1.5rem;align-items:center; }
 .cart-btn { text-decoration:none;color:var(--text-primary);font-size:0.9rem;font-weight:600;display:flex;align-items:center;gap:0.5rem; }
@@ -86,17 +103,29 @@ body {
 .hamburger span { width:24px;height:2px;background:#fff;border-radius:2px;transition:var(--transition); }
 
 @media (max-width: 768px) {
-  .navbar { padding:1rem; }
+  .navbar { padding:0.75rem 1.25rem; }
+  .navbar-brand { font-size: 1.2rem; }
   .navbar-links {
-    position:absolute;top:100%;left:0;right:0;
-    flex-direction:column;gap:1rem;padding:2rem;
-    background:rgba(5,5,5,0.95);backdrop-filter:blur(32px);
-    border-bottom:1px solid rgba(255,255,255,0.1);
-    transform:translateY(-10px);opacity:0;pointer-events:none;transition:var(--transition);
+    position:fixed; bottom:0; left:0; right:0; top:auto;
+    flex-direction:row; justify-content: space-around;
+    padding: 0.75rem 0.5rem calc(0.75rem + env(safe-area-inset-bottom));
+    background:rgba(10,10,10,0.85); backdrop-filter:blur(24px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom:none;
+    transform: none; opacity: 1; pointer-events: all;
+    z-index: 2000;
   }
-  .navbar-links.open { transform:translateY(0);opacity:1;pointer-events:all; }
-  .hamburger { display:flex; }
+  .nav-icon { display: block; margin-bottom: 2px; }
+  .navbar-links a { 
+    display: flex; flex-direction: column; align-items: center; 
+    gap: 4px; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); 
+  }
+  .navbar-links a.active { color: #fff; }
+  
+  .hamburger, .menu-text { display:none !important; }
   .mobile-hide { display:none; }
+  
+  /* Add icon placeholders for mobile nav if needed via JS or keep simple */
 }
 
 /* ── Admin Dashboard ────────────────────────── */

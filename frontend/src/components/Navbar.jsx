@@ -27,12 +27,12 @@ export default function Navbar() {
       </Link>
 
       <ul className={`navbar-links ${menuOpen ? 'open' : ''}`} id="nav-links">
-        <li><Link to="/"        className={isActive('/')}        onClick={() => setMenuOpen(false)}>Home</Link></li>
-        <li><Link to="/shop"    className={isActive('/shop')}    onClick={() => setMenuOpen(false)}>Shop</Link></li>
-        <li><Link to="/cart"    className={isActive('/cart')}    onClick={() => setMenuOpen(false)}>Cart</Link></li>
-        <li><Link to="/profile" className={isActive('/profile')} onClick={() => setMenuOpen(false)}>My Orders</Link></li>
+        <li><Link to="/"        className={isActive('/')}        onClick={() => setMenuOpen(false)}><span className="nav-icon">🏠</span> Home</Link></li>
+        <li><Link to="/shop"    className={isActive('/shop')}    onClick={() => setMenuOpen(false)}><span className="nav-icon">🛍️</span> Shop</Link></li>
+        <li><Link to="/cart"    className={isActive('/cart')}    onClick={() => setMenuOpen(false)}><span className="nav-icon">🛒</span> Cart</Link></li>
+        <li><Link to="/profile" className={isActive('/profile')} onClick={() => setMenuOpen(false)}><span className="nav-icon">👤</span> My Orders</Link></li>
         {user?.role === 'admin' && (
-          <li><Link to="/admin/products" className={location.pathname.startsWith('/admin') ? 'active' : ''} onClick={() => setMenuOpen(false)}>Admin</Link></li>
+          <li><Link to="/admin/products" className={location.pathname.startsWith('/admin') ? 'active' : ''} onClick={() => setMenuOpen(false)}><span className="nav-icon" style={{color:'var(--amber)'}}>👑</span> Admin</Link></li>
         )}
       </ul>
 

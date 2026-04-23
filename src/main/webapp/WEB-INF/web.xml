@@ -9,13 +9,15 @@
   <description>Grain-based food product e-commerce platform</description>
 
   <!-- Default welcome file -->
+  <session-config>
+    <session-timeout>60</session-timeout>
+    <cookie-config>
+      <path>/</path>
+    </cookie-config>
+  </session-config>
+
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
-
-  <!-- Session timeout — 60 minutes -->
-  <session-config>
-    <session-timeout>60</session-timeout>
-  </session-config>
 
 </web-app>

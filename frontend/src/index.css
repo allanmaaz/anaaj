@@ -501,7 +501,10 @@ body {
   width:100%;max-width:400px;height:100%;background:var(--bg-base);
   border-left:0.5px solid rgba(255,255,255,0.1);padding:2.5rem;
   transform:translateX(100%);transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+@media (max-width: 768px) {
+  .filter-drawer { max-width:100%;padding:1.5rem;border-left:none; }
 }
 .filter-drawer-overlay.open .filter-drawer { transform:translateX(0); }
 

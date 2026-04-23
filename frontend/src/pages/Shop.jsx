@@ -163,7 +163,6 @@ export default function Shop() {
             </div>
           </div>
         )}
-      </div>
 
       {/* Active Filters Bar */}
       {(catFilter!=='all' || stateFilter!=='all' || search) && (

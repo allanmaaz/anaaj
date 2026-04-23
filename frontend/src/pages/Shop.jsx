@@ -55,7 +55,9 @@ export default function Shop() {
 
   // Derive displayed list for filters/sort
   const displayed = (() => {
-    let list = [...products];
+    // Safety: Filter out "Ghost" products (nameless/priceless)
+    let list = products.filter(p => p.name && p.price > 0);
+    
     // category filter
     if (catFilter !== 'all') {
       list = list.filter(p => String(p.categoryId) === catFilter ||
@@ -86,43 +88,36 @@ export default function Shop() {
   return (
     <div className="section" style={{ paddingTop:'2.5rem' }}>
       {/* Header with Search + Filter Trigger */}
-      <div className="shop-controls">
-        <div className="search-wrap">
-          <span className="search-icon">🔍</span>
+      <div className="shop-controls-pill">
+        <div className="search-wrap-pill">
           <input
-            className="search-bar"
-            id="main-search"
+            className="search-input-pill"
             type="text"
-            placeholder="Search products..."
+            placeholder="What are you looking for?"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <span className="search-shortcut">⌘K</span>
-        </div>
-
-        <div style={{ display:'flex', gap:'0.75rem' }}>
+          <div className="pill-divider"></div>
           <select
-            className="status-select"
-            style={{ height:'44px', padding:'0 1rem' }}
+            className="pill-sort-select"
             value={sort}
             onChange={e => setSort(e.target.value)}
           >
-            <option value="default">Sort: Default</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="freshness">Freshness</option>
-            <option value="rating">Rating</option>
+            <option value="default">Default Sort</option>
+            <option value="price-asc">Price: Low-High</option>
+            <option value="price-desc">Price: High-Low</option>
+            <option value="freshness">Freshness First</option>
+            <option value="rating">Top Rated</option>
           </select>
-
           <button 
-            className={`filter-btn ${(catFilter!=='all' || stateFilter!=='all' || drawerOpen) ? 'active' : ''}`}
+            className={`pill-search-btn ${(catFilter!=='all' || stateFilter!=='all' || drawerOpen) ? 'active' : ''}`}
             onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            <i>Tune</i> Filters
+             <span>Tune</span>
           </button>
         </div>
-
-        {/* Filter Drawer */}
+      </div>
+   {/* Filter Drawer */}
         {drawerOpen && (
           <div className="filter-drawer">
             <div className="filter-group">
@@ -130,13 +125,13 @@ export default function Shop() {
               <div className="filter-grid">
                 <button
                   className={`filter-chip ${catFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => { setCatFilter('all'); setDrawerOpen(false); }}
+                  onClick={() => setCatFilter('all')}
                 >All Products</button>
                 {categories.map(cat => (
                   <button
                     key={cat}
                     className={`filter-chip ${catFilter === cat ? 'active' : ''}`}
-                    onClick={() => { setCatFilter(cat); setDrawerOpen(false); }}
+                    onClick={() => setCatFilter(cat)}
                   >{cat}</button>
                 ))}
               </div>
@@ -148,13 +143,13 @@ export default function Shop() {
                 <div className="filter-grid">
                   <button
                     className={`filter-chip ${stateFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => { setStateFilter('all'); setDrawerOpen(false); }}
+                    onClick={() => setStateFilter('all')}
                   >All States</button>
                   {states.map(s => (
                     <button
                       key={s}
                       className={`filter-chip ${stateFilter === s ? 'active' : ''}`}
-                      onClick={() => { setStateFilter(s); setDrawerOpen(false); }}
+                      onClick={() => setStateFilter(s)}
                     >{s}</button>
                   ))}
                 </div>

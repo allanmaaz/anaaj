@@ -405,16 +405,48 @@ body::after { bottom: -10%; right: -10%; background: var(--cyan); }
 .category-icon { font-size:2rem;margin-bottom:0.75rem; }
 .category-name { font-weight:700;font-size:0.9rem;color:#fff; }
 
-.shop-controls { display:flex;gap:1rem;align-items:center;margin-bottom:2.5rem; }
-.search-wrap { 
-  position:relative;flex:1;display:flex;align-items:center;
-  background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);
-  border-radius:var(--radius-full);padding:0 1.25rem;transition:var(--transition);
+/* ── Shop Pill Design ──────────────────────── */
+.shop-controls-pill { width:100%; max-width:800px; margin: 0 auto 3.5rem; }
+.search-wrap-pill {
+  display: flex; align-items: center;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px; padding: 6px 6px 6px 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  transition: var(--transition);
 }
-.search-wrap:focus-within { border-color:var(--blue);background:rgba(255,255,255,0.08); }
-.search-bar { width:100%;background:transparent;border:none;padding:0.75rem 0.5rem;color:#fff;font-size:0.95rem; }
-.search-bar:focus { outline:none; }
-.search-icon { color:var(--text-muted);font-size:0.9rem; }
+.search-wrap-pill:focus-within { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(56,189,248,0.1); }
+
+.search-input-pill {
+  flex: 1; min-width: 0; background: none; border: none;
+  color: #fff; font-size: 1rem; font-weight: 500;
+  outline: none; padding: 12px 0;
+}
+.pill-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 16px; }
+
+.pill-sort-select {
+  background: none; border: none; color: var(--text-secondary);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer; outline: none;
+  min-width: 140px;
+}
+.pill-search-btn {
+  width: 100px; height: 48px; border-radius: 40px;
+  background: var(--blue); border: none; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--transition);
+  font-weight: 700;
+}
+.pill-search-btn:hover { transform: scale(1.05); background: var(--cyan); }
+.pill-search-btn.active { background:var(--green); }
+
+@media (max-width: 768px) {
+  .shop-controls-pill { margin-bottom: 2rem; }
+  .search-wrap-pill { padding: 4px 4px 4px 16px; }
+  .pill-divider { display: none; }
+  .pill-sort-select { display: none; }
+  .search-input-pill { font-size: 0.9rem; }
+  .pill-search-btn { width: 70px; height: 40px; font-size: 0.8rem; }
+}
 .search-shortcut { font-size:0.7rem;color:var(--text-muted);background:rgba(255,255,255,0.05);padding:0.2rem 0.4rem;border-radius:4px;font-family:monospace; }
 
 .filter-row { display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem; }

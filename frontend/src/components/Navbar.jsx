@@ -62,7 +62,10 @@ export default function Navbar() {
             )}
           </div>
         ) : (
-          <Link to="/login" className="btn btn-primary btn-sm">Login</Link>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <Link to="/login" className="btn btn-glass btn-sm mobile-hide">Login</Link>
+            <Link to="/register" className="btn btn-primary btn-sm">Sign Up</Link>
+          </div>
         )}
       </div>
 

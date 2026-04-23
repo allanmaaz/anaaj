@@ -11,7 +11,7 @@ const CATEGORY_EMOJI = {
 };
 function getEmoji(name) { return CATEGORY_EMOJI[name] || '🌾'; }
 
-export default function ProductCard({ product: p }) {
+export default function ProductCard({ product: p, className = '' }) {
   const { addToCart } = useCart();
   const [imgError, setImgError] = useState(false);
 
@@ -30,7 +30,7 @@ export default function ProductCard({ product: p }) {
 
   return (
     <Link to={`/product/${p.id}`} style={{ textDecoration: 'none' }}>
-      <div className="product-card">
+      <div className={`product-card animate-in ${className}`}>
         <div className="product-card-image">
           {p.imageUrl && !imgError
             ? <img 

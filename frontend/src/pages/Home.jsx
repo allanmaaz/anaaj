@@ -77,15 +77,15 @@ export default function Home() {
     <>
       {/* Hero */}
       <div className="hero container">
-        <div className="hero-text">
-          <div className="hero-badge">🌱 Farm to Table · 100% Traceable</div>
-          <h1>
+        <div className="hero-text animate-in">
+          <div className="hero-badge stagger-1">🌱 Farm to Table · 100% Traceable</div>
+          <h1 className="stagger-2">
             Premium Grains,<br />
             <span className="gradient-text">Straight from</span><br />
             Indian Farms
           </h1>
-          <p>Rice, dals, millets and organic staples sourced directly from farmers across India. Freshness guaranteed. Bulk discounts for hostels &amp; restaurants.</p>
-          <div className="hero-cta">
+          <p className="stagger-3">Rice, dals, millets and organic staples sourced directly from farmers across India. Freshness guaranteed. Bulk discounts for hostels &amp; restaurants.</p>
+          <div className="hero-cta stagger-3">
             <Link to="/shop" className="btn btn-primary btn-lg">🛍️ Shop Now</Link>
             <a href="#bulk-section" className="btn btn-glass btn-lg">📦 Bulk Orders</a>
           </div>
@@ -143,7 +143,7 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="section">
+      <section className="section animate-in stagger-2">
         <div className="section-header">
           <h2 className="section-title">Featured <span>Products</span></h2>
           <Link to="/shop" className="btn btn-glass btn-sm">See All →</Link>
@@ -156,7 +156,7 @@ export default function Home() {
         )}
         {!loading && featured.length > 0 && (
           <div className="product-grid">
-            {featured.map(p => <ProductCard key={p.id} product={p} />)}
+            {featured.map((p, idx) => <ProductCard key={p.id} product={p} className={`stagger-${(idx % 3) + 1}`} />)}
           </div>
         )}
       </section>

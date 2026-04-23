@@ -86,9 +86,9 @@ export default function Shop() {
   };
 
   return (
-    <div className="section" style={{ paddingTop:'2.5rem' }}>
+    <div className="section animate-in" style={{ paddingTop:'2.5rem' }}>
       {/* Header with Search + Filter Trigger */}
-      <div className="shop-controls-pill">
+      <div className="shop-controls-pill stagger-1">
         <div className="search-wrap-pill">
           <input
             className="search-input-pill"
@@ -110,13 +110,15 @@ export default function Shop() {
             <option value="rating">Top Rated</option>
           </select>
           <button 
+            type="button"
             className={`pill-search-btn ${(catFilter!=='all' || stateFilter!=='all' || drawerOpen) ? 'active' : ''}`}
-            onClick={() => setDrawerOpen(!drawerOpen)}
+            onClick={(e) => { e.stopPropagation(); setDrawerOpen(!drawerOpen); }}
           >
              <span>Tune</span>
           </button>
         </div>
       </div>
+
        {/* Filter Drawer (Slide-out Overlay) */}
       <div className={`filter-drawer-overlay ${drawerOpen ? 'open' : ''}`} onClick={() => setDrawerOpen(false)}>
         <div className="filter-drawer" onClick={e => e.stopPropagation()}>
@@ -214,14 +216,14 @@ export default function Shop() {
         </div>
       )}
       {!loading && displayed.length > 0 && (
-        <>
+        <div className="animate-in stagger-2">
           <div className="product-grid">
-            {displayed.map(p => <ProductCard key={p.id} product={p} />)}
+            {displayed.map((p, idx) => <ProductCard key={p.id} product={p} className={`stagger-${(idx % 3) + 1}`} />)}
           </div>
           <div style={{ fontSize:'0.8rem',color:'var(--text-muted)',marginTop:'2rem', textAlign:'center', opacity:0.6 }}>
             Showing {displayed.length} premium products
           </div>
-        </>
+        </div>
       )}
     </div>
   );

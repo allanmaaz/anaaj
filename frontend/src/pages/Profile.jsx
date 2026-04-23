@@ -12,14 +12,20 @@ export default function Profile() {
   const [form, setForm] = useState({ name:'', phone:'', address:'' });
 
   useEffect(() => {
-    Promise.all([getAuthUser(), api.getOrders()])
-      .then(([u, o]) => {
-        if (!u) { setLoading(false); return; }
-        setUser(u);
-        setForm({ name: u.name||'', phone: u.phone||'', address: u.address||'' });
-        setOrders(Array.isArray(o) ? o : []);
-      })
-      .finally(() => setLoading(false));
+    const init = async () => {
+      const u = await getAuthUser();
+      if (!u) { 
+        setLoading(false); 
+        return; 
+      }
+      setUser(u);
+      setForm({ name: u.name||'', phone: u.phone||'', address: u.address||'' });
+      
+      const o = await api.getOrders();
+      setOrders(Array.isArray(o) ? o : []);
+      setLoading(false);
+    };
+    init();
   }, []);
 
   const saveProfile = async () => {

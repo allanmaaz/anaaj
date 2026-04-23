@@ -87,7 +87,7 @@ export default function Shop() {
 
   return (
     <div className="section animate-in" style={{ paddingTop:'2.5rem' }}>
-      {/* Header with Search + Filter Trigger */}
+      {/* Search Pill */}
       <div className="shop-controls-pill stagger-1">
         <div className="search-wrap-pill">
           <input
@@ -97,24 +97,12 @@ export default function Shop() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          <div className="pill-divider"></div>
-          <select
-            className="pill-sort-select"
-            value={sort}
-            onChange={e => setSort(e.target.value)}
-          >
-            <option value="default">Default Sort</option>
-            <option value="price-asc">Price: Low-High</option>
-            <option value="price-desc">Price: High-Low</option>
-            <option value="freshness">Freshness First</option>
-            <option value="rating">Top Rated</option>
-          </select>
           <button 
             type="button"
-            className={`pill-search-btn ${(catFilter!=='all' || stateFilter!=='all' || drawerOpen) ? 'active' : ''}`}
+            className={`pill-search-btn ${(catFilter!=='all' || stateFilter!=='all' || sort!=='default' || drawerOpen) ? 'active' : ''}`}
             onClick={(e) => { e.stopPropagation(); setDrawerOpen(!drawerOpen); }}
           >
-             <span>Tune</span>
+             <span>⚙ Tune</span>
           </button>
         </div>
       </div>
@@ -127,51 +115,75 @@ export default function Shop() {
             <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
           </div>
 
-          <div className="filter-section">
-            <label className="filter-section-label">Categories</label>
-            <div className="filter-grid">
-              <button
-                className={`filter-pill ${catFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setCatFilter('all')}
-              >All Products</button>
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  className={`filter-pill ${catFilter === cat ? 'active' : ''}`}
-                  onClick={() => setCatFilter(cat)}
-                >{cat}</button>
-              ))}
-            </div>
-          </div>
-
-          {states.length > 0 && (
+          <div className="filter-drawer-body">
+            {/* Sort */}
             <div className="filter-section">
-              <label className="filter-section-label">Origin State</label>
+              <label className="filter-section-label">Sort By</label>
               <div className="filter-grid">
-                <button
-                  className={`filter-pill ${stateFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => setStateFilter('all')}
-                >All States</button>
-                {states.map(s => (
-                  <button
-                    key={s}
-                    className={`filter-pill ${stateFilter === s ? 'active' : ''}`}
-                    onClick={() => setStateFilter(s)}
-                  >{s}</button>
+                {[
+                  { val:'default',    label:'Default' },
+                  { val:'price-asc',  label:'Price: Low→High' },
+                  { val:'price-desc', label:'Price: High→Low' },
+                  { val:'freshness',  label:'Freshness' },
+                  { val:'rating',     label:'Top Rated' },
+                ].map(s => (
+                  <button key={s.val}
+                    className={`filter-pill ${sort === s.val ? 'active' : ''}`}
+                    onClick={() => setSort(s.val)}
+                  >{s.label}</button>
                 ))}
               </div>
             </div>
-          )}
+
+            {/* Categories */}
+            <div className="filter-section">
+              <label className="filter-section-label">Categories</label>
+              <div className="filter-grid">
+                <button
+                  className={`filter-pill ${catFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setCatFilter('all')}
+                >All Products</button>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    className={`filter-pill ${catFilter === cat ? 'active' : ''}`}
+                    onClick={() => setCatFilter(cat)}
+                  >{cat}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Origin State */}
+            {states.length > 0 && (
+              <div className="filter-section">
+                <label className="filter-section-label">Origin State</label>
+                <div className="filter-grid">
+                  <button
+                    className={`filter-pill ${stateFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setStateFilter('all')}
+                  >All States</button>
+                  {states.map(s => (
+                    <button
+                      key={s}
+                      className={`filter-pill ${stateFilter === s ? 'active' : ''}`}
+                      onClick={() => setStateFilter(s)}
+                    >{s}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           
-          <div style={{ marginTop:'auto', paddingTop:'2rem', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+          {/* Sticky Bottom Actions */}
+          <div className="filter-drawer-actions">
             <button className="btn btn-primary btn-block btn-lg" onClick={() => setDrawerOpen(false)}>
-              Show Results
+              Show {displayed.length} Results
             </button>
             <button 
-              className="btn btn-glass btn-block mt-3" 
+              className="btn btn-glass btn-block" style={{marginTop:'0.75rem'}}
               onClick={() => { clearAllFilters(); setDrawerOpen(false); }}
             >
-              Reset Filters
+              Reset All
             </button>
           </div>
         </div>

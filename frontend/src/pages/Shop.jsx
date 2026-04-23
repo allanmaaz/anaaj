@@ -117,52 +117,63 @@ export default function Shop() {
           </button>
         </div>
       </div>
-   {/* Filter Drawer */}
-        {drawerOpen && (
-          <div className="filter-drawer">
-            <div className="filter-group">
-              <label className="filter-group-label">Categories</label>
+       {/* Filter Drawer (Slide-out Overlay) */}
+      <div className={`filter-drawer-overlay ${drawerOpen ? 'open' : ''}`} onClick={() => setDrawerOpen(false)}>
+        <div className="filter-drawer" onClick={e => e.stopPropagation()}>
+          <div className="filter-drawer-header">
+            <h2 className="filter-drawer-title">Tune Results</h2>
+            <button className="drawer-close" onClick={() => setDrawerOpen(false)}>×</button>
+          </div>
+
+          <div className="filter-section">
+            <label className="filter-section-label">Categories</label>
+            <div className="filter-grid">
+              <button
+                className={`filter-pill ${catFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setCatFilter('all')}
+              >All Products</button>
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  className={`filter-pill ${catFilter === cat ? 'active' : ''}`}
+                  onClick={() => setCatFilter(cat)}
+                >{cat}</button>
+              ))}
+            </div>
+          </div>
+
+          {states.length > 0 && (
+            <div className="filter-section">
+              <label className="filter-section-label">Origin State</label>
               <div className="filter-grid">
                 <button
-                  className={`filter-chip ${catFilter === 'all' ? 'active' : ''}`}
-                  onClick={() => setCatFilter('all')}
-                >All Products</button>
-                {categories.map(cat => (
+                  className={`filter-pill ${stateFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setStateFilter('all')}
+                >All States</button>
+                {states.map(s => (
                   <button
-                    key={cat}
-                    className={`filter-chip ${catFilter === cat ? 'active' : ''}`}
-                    onClick={() => setCatFilter(cat)}
-                  >{cat}</button>
+                    key={s}
+                    className={`filter-pill ${stateFilter === s ? 'active' : ''}`}
+                    onClick={() => setStateFilter(s)}
+                  >{s}</button>
                 ))}
               </div>
             </div>
-
-            {states.length > 0 && (
-              <div className="filter-group" style={{ marginTop:'1.5rem' }}>
-                <label className="filter-group-label">Origin State</label>
-                <div className="filter-grid">
-                  <button
-                    className={`filter-chip ${stateFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => setStateFilter('all')}
-                  >All States</button>
-                  {states.map(s => (
-                    <button
-                      key={s}
-                      className={`filter-chip ${stateFilter === s ? 'active' : ''}`}
-                      onClick={() => setStateFilter(s)}
-                    >{s}</button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div style={{ marginTop:'1.5rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,0.1)' }}>
-              <button className="btn btn-glass btn-block btn-sm" onClick={() => setDrawerOpen(false)}>
-                Done
-              </button>
-            </div>
+          )}
+          
+          <div style={{ marginTop:'auto', paddingTop:'2rem', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+            <button className="btn btn-primary btn-block btn-lg" onClick={() => setDrawerOpen(false)}>
+              Show Results
+            </button>
+            <button 
+              className="btn btn-glass btn-block mt-3" 
+              onClick={() => { clearAllFilters(); setDrawerOpen(false); }}
+            >
+              Reset Filters
+            </button>
           </div>
-        )}
+        </div>
+      </div>
 
       {/* Active Filters Bar */}
       {(catFilter!=='all' || stateFilter!=='all' || search) && (

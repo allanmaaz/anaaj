@@ -477,6 +477,8 @@ body::after { bottom: -10%; right: -10%; background: var(--cyan); }
 
 .filter-drawer-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem; }
 .filter-drawer-title { font-size:1.5rem;font-weight:900;letter-spacing:-0.03em; }
+.drawer-close { background:none; border:none; color:var(--text-muted); font-size:1.8rem; cursor:pointer; line-height:1; }
+.drawer-close:hover { color:#fff; }
 
 .filter-section { margin-bottom:2.5rem; }
 .filter-section-label { font-size:0.75rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem;display:block; }

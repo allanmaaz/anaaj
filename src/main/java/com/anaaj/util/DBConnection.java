@@ -102,16 +102,32 @@ public class DBConnection {
     private static void initPostgresSchema(Connection conn) {
         try {
             InputStream is = DBConnection.class.getResourceAsStream("/anaaj_schema_postgres.sql");
-            if (is != null) {
-                String sql = new String(is.readAllBytes(), "UTF-8");
-                conn.createStatement().execute(sql);
-                System.out.println("✅ PostgreSQL schema initialized");
-            } else {
+            if (is == null) {
                 System.err.println("Could not find /anaaj_schema_postgres.sql in classpath!");
+                return;
             }
+            String fullSql = new String(is.readAllBytes(), "UTF-8");
+            
+            // Split by semicolons and execute each statement
+            String[] statements = fullSql.split(";");
+            int success = 0, skipped = 0;
+            for (String stmt : statements) {
+                String trimmed = stmt.trim();
+                // Skip empty lines and comments
+                if (trimmed.isEmpty() || trimmed.startsWith("--")) continue;
+                try {
+                    conn.createStatement().execute(trimmed);
+                    success++;
+                } catch (Exception stmtEx) {
+                    // Likely "already exists" or "duplicate key" — that's fine
+                    skipped++;
+                    System.out.println("  ⏭ Skipped (already exists): " + stmtEx.getMessage());
+                }
+            }
+            System.out.println("✅ PostgreSQL schema: " + success + " executed, " + skipped + " skipped");
         } catch (Exception ex) {
-            // Schema may already exist — that's fine for PostgreSQL
-            System.out.println("ℹ️ PostgreSQL schema init: " + ex.getMessage());
+            System.err.println("❌ PostgreSQL schema init failed: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 

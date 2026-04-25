@@ -48,16 +48,20 @@ export default function Login() {
       fd.append('password', 'GoogleAuth123!@#');
       const res = await fetch('/login', { method: 'POST', body: fd });
       const data = await res.json();
+      console.log("Backend Login Response:", data);
 
       if (res.ok && data.success) {
+        console.log("Login Successful! Redirecting to:", data.role);
         window.location.href = data.role === 'admin' ? '/admin/products' : '/';
       } else {
+        console.log("Login failed, attempting auto-registration...");
         const regFd = new URLSearchParams();
         regFd.append('name', gData.name || 'Google User');
         regFd.append('email', gData.email);
         regFd.append('password', 'GoogleAuth123!@#');
         const regRes = await fetch('/register', { method: 'POST', body: regFd });
         const regData = await regRes.json();
+        console.log("Register Response:", regData);
         if (regRes.ok && regData.success) {
           window.location.href = '/';
         } else {
@@ -65,7 +69,8 @@ export default function Login() {
         }
       }
     } catch (e) {
-      setError('Google Authentication failed.');
+      console.error("Google Auth Flow Error:", e);
+      setError('Google Login was blocked by your browser extensions (AdBlocker). Please disable them and try again.');
     } finally {
       setLoading(false);
       window.history.replaceState(null, document.title, window.location.pathname);

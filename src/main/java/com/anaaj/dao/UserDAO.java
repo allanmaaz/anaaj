@@ -59,11 +59,11 @@ public class UserDAO {
      * @return the User object if credentials match, null otherwise
      */
     public User loginUser(String email, String plainPassword) throws SQLException {
-        String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+        String sql = "SELECT * FROM users WHERE LOWER(email) = LOWER(?) AND password = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, email);
+            ps.setString(1, email.trim());
             ps.setString(2, hashPassword(plainPassword));
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -103,11 +103,11 @@ public class UserDAO {
 
     /** Checks whether an email already exists in the DB. */
     public boolean emailExists(String email) throws SQLException {
-        String sql = "SELECT 1 FROM users WHERE email = ?";
+        String sql = "SELECT 1 FROM users WHERE LOWER(email) = LOWER(?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, email);
+            ps.setString(1, email.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }

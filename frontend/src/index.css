@@ -698,7 +698,24 @@ input[type=range]::-webkit-slider-thumb {
   
   /* Filter Drawer */
   .filter-drawer { max-width:85%; padding:1.5rem; }
+  
+  /* Responsive utilities */
+  .desktop-only { display:none !important; }
+  .mobile-only { display:block !important; }
+  
+  /* Status select mobile */
+  .status-select {
+    width:100%; padding:0.75rem 1rem; font-size:0.9rem;
+    border-radius:12px; background:rgba(255,255,255,0.06);
+    border:0.5px solid rgba(255,255,255,0.12);
+    color:#fff; -webkit-appearance:none; appearance:none;
+  }
 }
+
+/* Default: hide mobile-only, show desktop-only */
+.mobile-only { display:none; }
+.desktop-only { display:block; }
+.data-table-wrap.desktop-only { display:block; }
 
 @media (max-width: 480px) {
   .product-grid { gap:0.75rem; }

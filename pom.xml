@@ -28,11 +28,18 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- H2 Embedded Database (No installation required) -->
+    <!-- H2 Embedded Database (local dev fallback) -->
     <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>2.2.224</version>
+    </dependency>
+
+    <!-- PostgreSQL JDBC Driver (production on Render) -->
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.7.3</version>
     </dependency>
 
     <!-- Gson for JSON serialization in servlet responses -->

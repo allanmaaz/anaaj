@@ -21,7 +21,8 @@ public class RegisterServlet extends HttpServlet {
             resp.sendRedirect("/");
             return;
         }
-        resp.sendRedirect("/register");
+        resp.setContentType("text/html");
+        req.getRequestDispatcher("/index.html").forward(req, resp);
     }
 
     @Override

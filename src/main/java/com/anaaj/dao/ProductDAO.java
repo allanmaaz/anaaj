@@ -19,7 +19,7 @@ public class ProductDAO {
                 + "FROM products p "
                 + "LEFT JOIN categories c ON p.category_id = c.id "
                 + "LEFT JOIN reviews r ON r.product_id = p.id "
-                + "GROUP BY p.id ORDER BY p.created_at DESC", null);
+                + "GROUP BY p.id, c.name ORDER BY p.created_at DESC", null);
     }
 
     /** Searches products by name substring (case-insensitive). */
@@ -29,7 +29,7 @@ public class ProductDAO {
                 + "LEFT JOIN categories c ON p.category_id = c.id "
                 + "LEFT JOIN reviews r ON r.product_id = p.id "
                 + "WHERE LOWER(p.name) LIKE ? OR LOWER(p.description) LIKE ? "
-                + "GROUP BY p.id ORDER BY p.name";
+                + "GROUP BY p.id, c.name ORDER BY p.name";
         String pattern = "%" + query.toLowerCase() + "%";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -46,7 +46,7 @@ public class ProductDAO {
                 + "LEFT JOIN categories c ON p.category_id = c.id "
                 + "LEFT JOIN reviews r ON r.product_id = p.id "
                 + "WHERE p.category_id = ? "
-                + "GROUP BY p.id ORDER BY p.name";
+                + "GROUP BY p.id, c.name ORDER BY p.name";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
@@ -61,7 +61,7 @@ public class ProductDAO {
                 + "LEFT JOIN categories c ON p.category_id = c.id "
                 + "LEFT JOIN reviews r ON r.product_id = p.id "
                 + "WHERE p.origin_state = ? "
-                + "GROUP BY p.id ORDER BY p.name";
+                + "GROUP BY p.id, c.name ORDER BY p.name";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, state);
@@ -75,7 +75,7 @@ public class ProductDAO {
                 + "FROM products p "
                 + "LEFT JOIN categories c ON p.category_id = c.id "
                 + "LEFT JOIN reviews r ON r.product_id = p.id "
-                + "WHERE p.id = ? GROUP BY p.id";
+                + "WHERE p.id = ? GROUP BY p.id, c.name";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -92,7 +92,7 @@ public class ProductDAO {
                 + "FROM products p "
                 + "LEFT JOIN categories c ON p.category_id = c.id "
                 + "LEFT JOIN reviews r ON r.product_id = p.id "
-                + "GROUP BY p.id ORDER BY p.freshness_score DESC LIMIT 8";
+                + "GROUP BY p.id, c.name ORDER BY p.freshness_score DESC LIMIT 8";
         return queryProducts(sql, null);
     }
 
